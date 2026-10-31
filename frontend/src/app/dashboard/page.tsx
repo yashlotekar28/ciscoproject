@@ -17,6 +17,7 @@ import {
   UserCheck
 } from "lucide-react";
 import Link from "next/link";
+import { API_BASE_URL } from "@/lib/api";
 
 interface AnalyticsData {
   total_cases: number;
@@ -65,7 +66,7 @@ export default function DashboardPage() {
   const [demoStep, setDemoStep] = useState(1);
 
   useEffect(() => {
-    fetch("http://127.0.0.1:8000/api/analytics")
+    fetch(`${API_BASE_URL}/analytics`)
       .then((res) => res.json())
       .then((data) => {
         if (data && data.total_cases) {

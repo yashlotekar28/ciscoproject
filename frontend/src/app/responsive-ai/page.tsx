@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { Sparkles, Send, Bot, User, RefreshCw } from "lucide-react";
+import { API_BASE_URL } from "@/lib/api";
 
 export default function ResponsiveAIPage() {
   const [messages, setMessages] = useState([
@@ -21,7 +22,7 @@ export default function ResponsiveAIPage() {
     setLoading(true);
 
     try {
-      const res = await fetch("http://127.0.0.1:8000/api/diagnose", {
+      const res = await fetch(`${API_BASE_URL}/diagnose`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ case_id: "CHAT-QUERY", command_output: userMsg }),

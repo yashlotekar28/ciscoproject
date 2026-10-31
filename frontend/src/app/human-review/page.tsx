@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { UserCheck, CheckCircle2, Edit3, XCircle, ShieldAlert, AlertTriangle, FileText, Send, Sparkles } from "lucide-react";
+import { API_BASE_URL } from "@/lib/api";
 
 interface ReviewItem {
   id?: number | string;
@@ -98,7 +99,7 @@ export default function HumanReviewPage() {
     const target = queue.find((q) => q.id === id);
     if (target) {
       try {
-        await fetch("http://127.0.0.1:8000/api/reviews", {
+        await fetch(`${API_BASE_URL}/reviews`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
@@ -138,7 +139,7 @@ export default function HumanReviewPage() {
     );
     setEditingId(null);
     try {
-      await fetch("http://127.0.0.1:8000/api/reviews", {
+      await fetch(`${API_BASE_URL}/reviews`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({

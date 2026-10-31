@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { Stethoscope, CheckCircle2, ShieldAlert, BarChart3, RefreshCw } from "lucide-react";
+import { API_BASE_URL } from "@/lib/api";
 
 interface AnalyticsData {
   total_cases: number;
@@ -15,7 +16,7 @@ export default function DashboardPage() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    fetch("http://127.0.0.1:8000/api/analytics")
+    fetch(`${API_BASE_URL}/analytics`)
       .then((res) => res.json())
       .then((analytics) => {
         setData(analytics);

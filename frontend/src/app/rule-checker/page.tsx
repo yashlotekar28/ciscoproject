@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { ShieldAlert, CheckCircle2, AlertTriangle, Terminal, Code2, Zap, ArrowRight, ShieldCheck } from "lucide-react";
+import { API_BASE_URL } from "@/lib/api";
 
 interface RuleFinding {
   rule_id: string;
@@ -52,7 +53,7 @@ export default function RuleCheckerPage() {
   const handleValidate = async () => {
     setLoading(true);
     try {
-      const res = await fetch("http://127.0.0.1:8000/api/check-rules", {
+      const res = await fetch(`${API_BASE_URL}/check-rules`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ text: cliInput }),

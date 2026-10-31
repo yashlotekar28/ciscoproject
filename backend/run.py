@@ -9,19 +9,20 @@ from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 from typing import Optional, List, Dict, Any
 
-# Ensure project root is on sys.path to import rule_checker
-PROJECT_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-if PROJECT_ROOT not in sys.path:
-    sys.path.insert(0, PROJECT_ROOT)
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+PROJECT_ROOT = os.path.dirname(BASE_DIR)
+
+for p in [BASE_DIR, PROJECT_ROOT]:
+    if p not in sys.path:
+        sys.path.insert(0, p)
 
 try:
     import rule_checker
 except ImportError:
     rule_checker = None
 
-BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 DB_PATH = os.path.join(BASE_DIR, "netsage.db")
-CASES_CSV_PATH = os.path.join(PROJECT_ROOT, "cases.csv")
+CASES_CSV_PATH = os.path.join(BASE_DIR, "cases.csv") if os.path.exists(os.path.join(BASE_DIR, "cases.csv")) else os.path.join(PROJECT_ROOT, "cases.csv")
 
 def get_db():
     conn = sqlite3.connect(DB_PATH)
@@ -417,4 +418,5 @@ def get_analytics():
     }
 
 if __name__ == "__main__":
-    uvicorn.run("run:app", host="127.0.0.1", port=8000, reload=True)
+    port = int(os.environ.get("PORT", 8000))
+    uvicorn.run("run:app", host="0.0.0.0", port=port, reload=False)

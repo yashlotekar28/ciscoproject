@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import { FolderGit2, Search, Filter, ArrowRight, ShieldAlert, Layers, Activity } from "lucide-react";
 import Link from "next/link";
+import { API_BASE_URL } from "@/lib/api";
 
 interface CaseItem {
   id: string;
@@ -27,7 +28,7 @@ export default function CasesPage() {
   const [selectedCategory, setSelectedCategory] = useState("ALL");
 
   useEffect(() => {
-    fetch("http://127.0.0.1:8000/api/cases")
+    fetch(`${API_BASE_URL}/cases`)
       .then((res) => res.json())
       .then((data) => {
         if (Array.isArray(data) && data.length > 0) {

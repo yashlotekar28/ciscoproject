@@ -2,10 +2,11 @@
 
 import { useState } from "react";
 import { Settings as SettingsIcon, Save, Key, Sliders, ShieldCheck, Database, Server } from "lucide-react";
+import { API_BASE_URL } from "@/lib/api";
 
 export default function SettingsPage() {
   const [apiKey, setApiKey] = useState("AIzaSyD-MOCK_KEY_NETSAGE_2026");
-  const [backendUrl, setBackendUrl] = useState("http://127.0.0.1:8000/api");
+  const [backendUrl, setBackendUrl] = useState(API_BASE_URL);
   const [llmProvider, setLlmProvider] = useState("Gemini 1.5 Pro");
   const [autoApproval, setAutoApproval] = useState(false);
   const [ruleSeverityFilter, setRuleSeverityFilter] = useState("Strict");

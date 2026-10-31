@@ -1,0 +1,29 @@
+services:
+  # NetSage AI FastAPI Backend Service
+  - type: web
+    name: netsage-ai-backend
+    env: python
+    region: oregon
+    plan: free
+    rootDir: backend
+    buildCommand: pip install -r requirements.txt
+    startCommand: uvicorn run:app --host 0.0.0.0 --port $PORT
+    envVars:
+      - key: PYTHON_VERSION
+        value: 3.11.0
+
+  # NetSage AI Next.js Frontend Service
+  - type: web
+    name: netsage-ai-frontend
+    env: node
+    region: oregon
+    plan: free
+    rootDir: frontend
+    buildCommand: npm install && npm run build
+    startCommand: npm start
+    envVars:
+      - key: NEXT_PUBLIC_API_URL
+        fromService:
+          type: web
+          name: netsage-ai-backend
+          property: host

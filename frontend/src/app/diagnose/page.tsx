@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { Stethoscope, Play, AlertCircle, CheckCircle2, ShieldCheck, RefreshCw } from "lucide-react";
+import { API_BASE_URL } from "@/lib/api";
 
 interface DiagnosisResponse {
   osi_layer: string;
@@ -31,7 +32,7 @@ export default function DiagnosePage() {
     setLoading(true);
     setError(null);
     try {
-      const res = await fetch("http://127.0.0.1:8000/api/diagnose", {
+      const res = await fetch(`${API_BASE_URL}/diagnose`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(formData),
@@ -41,7 +42,7 @@ export default function DiagnosePage() {
       const data: DiagnosisResponse = await res.json();
       setResult(data);
     } catch (err) {
-      setError("Failed to connect to backend at http://127.0.0.1:8000/api/diagnose. Make sure FastAPI is running.");
+      setError(`Failed to connect to backend at ${API_BASE_URL}/diagnose. Make sure FastAPI is running.`);
     } finally {
       setLoading(false);
     }
