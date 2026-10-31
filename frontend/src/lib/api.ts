@@ -14,11 +14,32 @@ export interface NetworkCase {
   expected_fix?: string;
   status?: string;
 }
-export const BACKEND_URL = (
-  process.env.NEXT_PUBLIC_API_URL || "http://127.0.0.1:8000"
-).replace(/\/$/, "");
+export function getApiBaseUrl(): string {
+  if (typeof window !== "undefined") {
+    const custom = localStorage.getItem("netsage_backend_url");
+    if (custom && custom.trim()) {
+      let url = custom.trim().replace(/\/$/, "");
+      if (!url.startsWith("http://") && !url.startsWith("https://")) {
+        url = `https://${url}`;
+      }
+      return url.endsWith("/api") ? url : `${url}/api`;
+    }
+  }
 
-export const API_BASE_URL = `${BACKEND_URL}/api`;
+  let envUrl = (process.env.NEXT_PUBLIC_API_URL || "").trim();
+  if (envUrl) {
+    let url = envUrl.replace(/\/$/, "");
+    if (!url.startsWith("http://") && !url.startsWith("https://")) {
+      url = `https://${url}`;
+    }
+    return url.endsWith("/api") ? url : `${url}/api`;
+  }
+
+  return "http://127.0.0.1:8000/api";
+}
+
+export const BACKEND_URL = (process.env.NEXT_PUBLIC_API_URL || "http://127.0.0.1:8000").replace(/\/$/, "");
+export const API_BASE_URL = getApiBaseUrl();
 
 export async function fetchCases(): Promise<NetworkCase[]> {
   try {

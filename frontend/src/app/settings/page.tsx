@@ -2,21 +2,51 @@
 
 import { useState } from "react";
 import { Settings as SettingsIcon, Save, Key, Sliders, ShieldCheck, Database, Server } from "lucide-react";
-import { API_BASE_URL } from "@/lib/api";
+import { useEffect } from "react";
+import { API_BASE_URL, getApiBaseUrl } from "@/lib/api";
 
 export default function SettingsPage() {
   const [apiKey, setApiKey] = useState("AIzaSyD-MOCK_KEY_NETSAGE_2026");
-  const [backendUrl, setBackendUrl] = useState(API_BASE_URL);
+  const [backendUrl, setBackendUrl] = useState("http://127.0.0.1:8000/api");
   const [llmProvider, setLlmProvider] = useState("Gemini 1.5 Pro");
   const [autoApproval, setAutoApproval] = useState(false);
   const [ruleSeverityFilter, setRuleSeverityFilter] = useState("Strict");
-
   const [saved, setSaved] = useState(false);
+  const [testStatus, setTestStatus] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      const stored = localStorage.getItem("netsage_backend_url");
+      setBackendUrl(stored || getApiBaseUrl());
+    }
+  }, []);
 
   const handleSave = (e: React.FormEvent) => {
     e.preventDefault();
+    if (typeof window !== "undefined") {
+      localStorage.setItem("netsage_backend_url", backendUrl.trim());
+    }
     setSaved(true);
-    setTimeout(() => setSaved(false), 2000);
+    setTimeout(() => setSaved(false), 2500);
+  };
+
+  const testBackendConnection = async () => {
+    setTestStatus("Testing...");
+    try {
+      let target = backendUrl.trim().replace(/\/$/, "");
+      if (!target.startsWith("http://") && !target.startsWith("https://")) {
+        target = `https://${target}`;
+      }
+      const pingUrl = target.endsWith("/api") ? target : `${target}/api`;
+      const res = await fetch(`${pingUrl}/cases`);
+      if (res.ok) {
+        setTestStatus("Connected Successfully! (FastAPI Online)");
+      } else {
+        setTestStatus(`Server responded with status: ${res.status}`);
+      }
+    } catch (e: any) {
+      setTestStatus("Connection Failed. Verify URL and ensure backend is awake on Render.");
+    }
   };
 
   return (
@@ -39,13 +69,28 @@ export default function SettingsPage() {
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-xs">
             <div>
-              <label className="block text-slate-400 font-medium mb-1">FastAPI Backend Endpoint</label>
+              <div className="flex items-center justify-between mb-1">
+                <label className="block text-slate-400 font-medium">FastAPI Backend Endpoint</label>
+                <button
+                  type="button"
+                  onClick={testBackendConnection}
+                  className="text-[11px] text-cyan-400 hover:text-cyan-300 underline font-semibold"
+                >
+                  Test Connection
+                </button>
+              </div>
               <input
                 type="text"
                 value={backendUrl}
                 onChange={(e) => setBackendUrl(e.target.value)}
+                placeholder="https://netsage-ai-backend.onrender.com/api"
                 className="w-full bg-slate-900 border border-slate-800 rounded-lg p-2.5 text-white font-mono focus:outline-none focus:border-cyan-500"
               />
+              {testStatus && (
+                <p className={`text-[11px] mt-1.5 ${testStatus.includes("Successfully") ? "text-emerald-400" : "text-amber-400"}`}>
+                  {testStatus}
+                </p>
+              )}
             </div>
 
             <div>
