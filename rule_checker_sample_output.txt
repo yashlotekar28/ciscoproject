@@ -1,0 +1,75 @@
+﻿================================================================================
+NetSage AI - Deterministic Rule Checker Validation Suite
+================================================================================
+
+--- TEST CASE 1: Check 1: Duplicate IP Detection ---
+Input Snippet:
+%IP-4-DUPADDR: Duplicate address 192.168.1.50 on GigabitEthernet0/0, sourced by 0001.42a1.b201
+Result: DETECTED (1 finding(s))
+  [+] RULE-IP-001 | Duplicate IP Address Detected via Syslog [Critical]
+      Evidence   : %IP-4-DUPADDR reported conflicting address 192.168.1.50 on interface GigabitEthernet0/0
+      Remediation: Reassign unique IP address to interface GigabitEthernet0/0 or check host ARP table.
+
+--- TEST CASE 2: Check 2: Wildcard Mask Inversion in ACL ---
+Input Snippet:
+access-list 10 permit 192.168.10.0 255.255.255.0
+Result: DETECTED (1 finding(s))
+  [+] RULE-MASK-001 | Subnet Mask Used Instead of Wildcard Mask in Access List [High]
+      Evidence   : ACL contains '192.168.10.0 255.255.255.0' - Cisco ACL requires inverse wildcard mask (e.g., 0.0.0.255)
+      Remediation: Replace '255.255.255.0' with its inverse wildcard mask equivalent (e.g., 0.0.0.255).
+
+--- TEST CASE 3: Check 3: Gateway Subnet Mismatch ---
+Input Snippet:
+IP Address. . . . . . . . . . . : 192.168.10.50
+Subnet Mask . . . . . . . . . . . : 255.255.255.0
+Default Gateway . . . . . . . . . : 192.168.20.1
+Result: DETECTED (1 finding(s))
+  [+] RULE-GW-001 | Default Gateway Subnet Mismatch [High]
+      Evidence   : Host IP 192.168.10.50 (192.168.10.0/24) cannot reach Default Gateway 192.168.20.1 (outside subnet)
+      Remediation: Change Default Gateway on host to an IP within subnet 192.168.10.0/24 (e.g., 192.168.10.1).
+
+--- TEST CASE 4: Check 4: Interface Administratively Down ---
+Input Snippet:
+GigabitEthernet0/0/0 192.168.1.1 YES manual administratively down down
+Result: DETECTED (1 finding(s))
+  [+] RULE-INT-001 | Interface Administratively Down (Shutdown) [High]
+      Evidence   : Interface GigabitEthernet0/0/0 state is explicitly 'administratively down'
+      Remediation: configure terminal
+interface GigabitEthernet0/0/0
+ no shutdown
+end
+
+--- TEST CASE 5: Check 5: Missing VLAN in Database ---
+Input Snippet:
+interface FastEthernet0/10
+ switchport access vlan 50
+ switchport mode access
+
+show vlan brief
+1 default active Fa0/1, Fa0/2
+10 Management active Fa0/3
+Result: DETECTED (1 finding(s))
+  [+] RULE-VLAN-001 | Access Port Assigned to Undeclared VLAN 50 [High]
+      Evidence   : Port configured for 'switchport access vlan 50', but VLAN 50 does not exist in 'show vlan brief'
+      Remediation: configure terminal
+vlan 50
+ name VLAN_50
+end
+
+--- TEST CASE 6: Check 6: Missing Default Route on Edge Router ---
+Input Snippet:
+show ip route
+Codes: C - connected, S - static
+Gateway of last resort is not set
+C 192.168.1.0/24 is directly connected, GigabitEthernet0/0/0
+Need internet access to 8.8.8.8
+Result: DETECTED (1 finding(s))
+  [+] RULE-ROUTE-001 | Missing Default Route (Gateway of Last Resort Not Set) [Critical]
+      Evidence   : 'Gateway of last resort is not set' in 'show ip route' table
+      Remediation: configure terminal
+ip route 0.0.0.0 0.0.0.0 <ISP_Gateway_IP>
+end
+
+================================================================================
+Summary: 6 / 6 tests successfully triggered deterministic checks.
+================================================================================
